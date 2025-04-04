@@ -1,0 +1,175 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum OrderStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  CANCELLED
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+}
+
+enum PaymentMethod {
+  PAYOS
+  COD
+}
+
+model MauVay {
+  id          Int       @id @default(autoincrement())
+  mau_id      Int
+  mau_release Mau       @relation(fields: [mau_id], references: [id])
+  vaycuoi     VayCuoi[]
+  created_at  DateTime  @default(now())
+  updated_at  DateTime  @updatedAt
+}
+
+model Mau {
+  id         Int      @id @default(autoincrement())
+  ten_mau    String
+  mau_vay    MauVay[]
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
+model KichThuoc {
+  id         Int       @id @default(autoincrement())
+  kich_thuoc String
+  vaycuoi    VayCuoi[]
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+}
+
+model DoTuoi {
+  id         Int       @id @default(autoincrement())
+  dotuoi     Int
+  vaycuoi    VayCuoi[]
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+}
+
+model GiaVay {
+  id         Int       @id @default(autoincrement())
+  gia_thue   Int
+  gia_ban    Int
+  vaycuoi    VayCuoi[]
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+}
+
+model VayCuoi {
+  id                  Int       @id @default(autoincrement())
+  ten                 String
+  so_luong            Int
+  gia                 Int
+  anh                 String
+  id_mau_vay          Int
+  id_kich_thuoc       Int
+  id_do_tuoi          Int
+  id_gia_vay          Int
+  mau_vay_relation    MauVay    @relation(fields: [id_mau_vay], references: [id])
+  kich_thuoc_relation KichThuoc @relation(fields: [id_kich_thuoc], references: [id])
+  do_tuoi_relation    DoTuoi    @relation(fields: [id_do_tuoi], references: [id])
+  gia_vay_relation    GiaVay    @relation(fields: [id_gia_vay], references: [id])
+  created_at          DateTime  @default(now())
+  updated_at          DateTime  @updatedAt
+}
+
+model Transaction {
+  id             Int           @id @default(autoincrement())
+  so_tien        Int
+  payment_status PaymentStatus
+  donhang        DonHang[]
+  created_at     DateTime      @default(now())
+  updated_at     DateTime      @updatedAt
+}
+
+model DonHang {
+  id                      Int           @id @default(autoincrement())
+  order_status            OrderStatus
+  payment_method          PaymentMethod
+  ten_khach_hang          String
+  so_dien_thoai           String
+  dia_chi                 String
+  email                   String
+  transaction_id          Int
+  transaction_id_relation Transaction   @relation(fields: [transaction_id], references: [id])
+  created_at              DateTime      @default(now())
+  updated_at              DateTime      @updatedAt
+}
+
+model MakeUp {
+  id                  Int       @id @default(autoincrement())
+  ten_makeup          String
+  gia_makeup          Int
+  phong_cach_id       Int
+  anh_makeup          String
+  chi_tiet            String
+  phong_cach_relation PhongCach @relation(fields: [phong_cach_id], references: [id])
+  created_at          DateTime  @default(now())
+  updated_at          DateTime  @updatedAt
+}
+
+model PhongCach {
+  id             Int      @id @default(autoincrement())
+  ten_phong_cach String
+  makeup         MakeUp[]
+  created_at     DateTime @default(now())
+  updated_at     DateTime @updatedAt
+}
+
+model RapCuoi {
+  id               Int      @id @default(autoincrement())
+  ten_rap          String
+  mau_rap          String
+  so_ghe_id        Int
+  so_day_ghe_id    Int
+  gia_thue         Int
+  anh_rap          String
+  so_luong_ghe     SoGhe    @relation(fields: [so_ghe_id], references: [id])
+  so_luong_day_ghe SoDayGhe @relation(fields: [so_day_ghe_id], references: [id])
+  created_at       DateTime @default(now())
+  updated_at       DateTime @updatedAt
+}
+
+model SoGhe {
+  id           Int       @id @default(autoincrement())
+  so_luong_ghe Int
+  rapcuoi      RapCuoi[]
+  created_at   DateTime  @default(now())
+  updated_at   DateTime  @updatedAt
+}
+
+model SoDayGhe {
+  id               Int       @id @default(autoincrement())
+  so_luong_day_ghe Int
+  rapcuoi          RapCuoi[]
+  created_at       DateTime  @default(now())
+  updated_at       DateTime  @updatedAt
+}
+
+model Administrator {
+  id         Int      @id @default(autoincrement())
+  username   String
+  password   String
+  email      String
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
