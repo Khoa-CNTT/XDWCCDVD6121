@@ -65,29 +65,17 @@ model DoTuoi {
   updated_at DateTime  @updatedAt
 }
 
-model GiaVay {
-  id         Int       @id @default(autoincrement())
-  gia_thue   Int
-  gia_ban    Int
-  vaycuoi    VayCuoi[]
-  created_at DateTime  @default(now())
-  updated_at DateTime  @updatedAt
-}
-
 model VayCuoi {
   id                  Int       @id @default(autoincrement())
   ten                 String
-  so_luong            Int
   gia                 Int
   anh                 String
   id_mau_vay          Int
   id_kich_thuoc       Int
   id_do_tuoi          Int
-  id_gia_vay          Int
   mau_vay_relation    MauVay    @relation(fields: [id_mau_vay], references: [id])
   kich_thuoc_relation KichThuoc @relation(fields: [id_kich_thuoc], references: [id])
   do_tuoi_relation    DoTuoi    @relation(fields: [id_do_tuoi], references: [id])
-  gia_vay_relation    GiaVay    @relation(fields: [id_gia_vay], references: [id])
   created_at          DateTime  @default(now())
   updated_at          DateTime  @updatedAt
 }

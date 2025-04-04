@@ -10,13 +10,11 @@ export async function POST(request: NextRequest) {
     const datas = await prisma.vayCuoi.create({
         data: {
           ten: data.ten,
-          so_luong: data.so_luong,
           gia: data.gia,
           anh: data.anh,
           id_mau_vay: data.id_mau_vay,
           id_kich_thuoc: data.id_kich_thuoc,
           id_do_tuoi: data.id_do_tuoi,
-          id_gia_vay: data.id_gia_vay,
         },
     });
     return NextResponse.json({ datas: datas }, { status: 201 });

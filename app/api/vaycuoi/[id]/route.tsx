@@ -42,13 +42,11 @@ export async function PUT(
             where: { id: id },
             data: {
               ten: body.ten,
-              so_luong: body.so_luong,
               gia: body.gia,
               anh: body.anh,
               id_mau_vay: body.id_mau_vay,
               id_kich_thuoc: body.id_kich_thuoc,
               id_do_tuoi: body.id_do_tuoi,
-              id_gia_vay: body.id_gia_vay,
             },
         });
 
