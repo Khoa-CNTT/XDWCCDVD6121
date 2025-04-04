@@ -10,7 +10,7 @@ export async function POST(request: NextRequest) {
     const datas = await prisma.rapCuoi.create({
         data: {
             ten_rap: data.ten_rap,
-            mau_rap: data.mau_rap,
+            mau_id: data.mau_id,
             so_ghe_id: data.so_ghe_id,
             so_day_ghe_id: data.so_day_ghe_id,
             gia_thue: data.gia_thue,

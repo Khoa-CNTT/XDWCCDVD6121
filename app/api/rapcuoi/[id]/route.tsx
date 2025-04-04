@@ -42,7 +42,7 @@ export async function PUT(
             where: { id: id },
             data: {
                 ten_rap: body.ten_rap,
-                mau_rap: body.mau_rap,
+                mau_id: body.mau_id,
                 so_ghe_id: body.so_ghe_id,
                 so_day_ghe_id: body.so_day_ghe_id,
                 gia_thue: body.gia_thue,

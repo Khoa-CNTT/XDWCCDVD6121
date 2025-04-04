@@ -36,6 +36,7 @@ model Mau {
   id         Int       @id @default(autoincrement())
   ten_mau    String
   vaycuoi    VayCuoi[]
+  rapcuoi    RapCuoi[]
   created_at DateTime  @default(now())
   updated_at DateTime  @updatedAt
 }
@@ -117,11 +118,12 @@ model PhongCach {
 model RapCuoi {
   id               Int      @id @default(autoincrement())
   ten_rap          String
-  mau_rap          String
+  mau_id           Int
   so_ghe_id        Int
   so_day_ghe_id    Int
   gia_thue         Int
   anh_rap          String
+  mau_release      Mau      @relation(fields: [mau_id], references: [id])
   so_luong_ghe     SoGhe    @relation(fields: [so_ghe_id], references: [id])
   so_luong_day_ghe SoDayGhe @relation(fields: [so_day_ghe_id], references: [id])
   created_at       DateTime @default(now())
