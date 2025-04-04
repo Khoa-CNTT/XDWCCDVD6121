@@ -32,21 +32,12 @@ enum PaymentMethod {
   COD
 }
 
-model MauVay {
-  id          Int       @id @default(autoincrement())
-  mau_id      Int
-  mau_release Mau       @relation(fields: [mau_id], references: [id])
-  vaycuoi     VayCuoi[]
-  created_at  DateTime  @default(now())
-  updated_at  DateTime  @updatedAt
-}
-
 model Mau {
-  id         Int      @id @default(autoincrement())
+  id         Int       @id @default(autoincrement())
   ten_mau    String
-  mau_vay    MauVay[]
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  vaycuoi    VayCuoi[]
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
 }
 
 model KichThuoc {
@@ -70,12 +61,12 @@ model VayCuoi {
   ten                 String
   gia                 Int
   anh                 String
-  id_mau_vay          Int
-  id_kich_thuoc       Int
-  id_do_tuoi          Int
-  mau_vay_relation    MauVay    @relation(fields: [id_mau_vay], references: [id])
-  kich_thuoc_relation KichThuoc @relation(fields: [id_kich_thuoc], references: [id])
-  do_tuoi_relation    DoTuoi    @relation(fields: [id_do_tuoi], references: [id])
+  kich_thuoc_id       Int
+  do_tuoi_id          Int
+  mau_id              Int
+  mau_release         Mau       @relation(fields: [mau_id], references: [id])
+  kich_thuoc_relation KichThuoc @relation(fields: [kich_thuoc_id], references: [id])
+  do_tuoi_relation    DoTuoi    @relation(fields: [do_tuoi_id], references: [id])
   created_at          DateTime  @default(now())
   updated_at          DateTime  @updatedAt
 }

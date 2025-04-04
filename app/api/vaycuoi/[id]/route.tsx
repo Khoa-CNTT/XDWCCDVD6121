@@ -44,9 +44,9 @@ export async function PUT(
               ten: body.ten,
               gia: body.gia,
               anh: body.anh,
-              id_mau_vay: body.id_mau_vay,
-              id_kich_thuoc: body.id_kich_thuoc,
-              id_do_tuoi: body.id_do_tuoi,
+              mau_id: body.mau_id,
+              kich_thuoc_id: body.kich_thuoc_id,
+              do_tuoi_id: body.do_tuoi_id,
             },
         });
 

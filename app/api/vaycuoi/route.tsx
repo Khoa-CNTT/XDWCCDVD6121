@@ -12,9 +12,9 @@ export async function POST(request: NextRequest) {
           ten: data.ten,
           gia: data.gia,
           anh: data.anh,
-          id_mau_vay: data.id_mau_vay,
-          id_kich_thuoc: data.id_kich_thuoc,
-          id_do_tuoi: data.id_do_tuoi,
+          mau_id: data.mau_id,
+          kich_thuoc_id: data.kich_thuoc_id,
+          do_tuoi_id: data.do_tuoi_id,
         },
     });
     return NextResponse.json({ datas: datas }, { status: 201 });
