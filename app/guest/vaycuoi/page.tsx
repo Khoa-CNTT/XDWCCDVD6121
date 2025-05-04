@@ -6,14 +6,16 @@ import {
   Typography,
   IconButton,
   Checkbox,
+  Input,
 } from "@material-tailwind/react";
 import { XMarkIcon, FunnelIcon } from "@heroicons/react/24/outline";
-import PathName from "../components/PathName";
 
 interface Filters {
   mauVay: number[];
   kichThuoc: number[];
   doTuoi: number[];
+  chieuCao?: number;
+  canNang?: number;
 }
 
 interface FilterData {
@@ -28,6 +30,8 @@ const ProductPage = () => {
     mauVay: [],
     kichThuoc: [],
     doTuoi: [],
+    chieuCao: undefined,
+    canNang: undefined,
   });
   const [open, setOpen] = useState(false);
   const [mauVay, setMauVay] = useState<FilterData[]>([]);
@@ -36,14 +40,15 @@ const ProductPage = () => {
   const [selectedMauVay, setSelectedMauVay] = useState<number[]>([]);
   const [selectedKichThuoc, setSelectedKichThuoc] = useState<number[]>([]);
   const [selectedDoTuoi, setSelectedDoTuoi] = useState<number[]>([]);
+  const [chieuCao, setChieuCao] = useState<string>("");
+  const [canNang, setCanNang] = useState<string>("");
 
   useEffect(() => {
-    // Fetch data for filters
     const fetchData = async () => {
       try {
         const [mauVayRes, kichThuocRes, doTuoiRes] = await Promise.all([
           fetch("/api/mau"),
-          fetch("/api/kichthuoc"),
+          fetch("/api/size"),
           fetch("/api/dotuoi"),
         ]);
 
@@ -62,14 +67,15 @@ const ProductPage = () => {
     fetchData();
   }, []);
 
-  // Cập nhật filters mỗi khi có thay đổi lựa chọn
   useEffect(() => {
     setFilters({
       mauVay: selectedMauVay,
       kichThuoc: selectedKichThuoc,
       doTuoi: selectedDoTuoi,
+      chieuCao: chieuCao ? parseInt(chieuCao) : undefined,
+      canNang: canNang ? parseInt(canNang) : undefined,
     });
-  }, [selectedMauVay, selectedKichThuoc, selectedDoTuoi]);
+  }, [selectedMauVay, selectedKichThuoc, selectedDoTuoi, chieuCao, canNang]);
 
   const handleMauVayChange = (id: number) => {
     setSelectedMauVay((prev) =>
@@ -93,14 +99,12 @@ const ProductPage = () => {
     setSelectedMauVay([]);
     setSelectedKichThuoc([]);
     setSelectedDoTuoi([]);
+    setChieuCao("");
+    setCanNang("");
   };
 
-  // Tính toán số lượng filter đã chọn
-  const selectedFiltersCount = [
-    selectedMauVay.length,
-    selectedKichThuoc.length,
-    selectedDoTuoi.length,
-  ].reduce((a, b) => a + b, 0);
+  const selectedFiltersCount =
+    selectedMauVay.length + selectedKichThuoc.length + selectedDoTuoi.length;
 
   return (
     <div className="flex flex-col w-full bg-white min-h-screen">
@@ -121,7 +125,6 @@ const ProductPage = () => {
         <ProductCard filters={filters} />
       </div>
 
-      {/* Filter Drawer */}
       <Drawer
         open={open}
         onClose={() => setOpen(false)}
@@ -147,6 +150,7 @@ const ProductPage = () => {
         </div>
 
         <div className="flex flex-col gap-5 h-[90vh] overflow-y-auto pr-2">
+          {/* Màu váy */}
           <div>
             <div className="flex items-center justify-between mb-4">
               <Typography variant="h6" color="blue-gray" className="uppercase">
@@ -166,6 +170,7 @@ const ProductPage = () => {
             </div>
           </div>
 
+          {/* Kích thước */}
           <div>
             <div className="flex items-center justify-between mb-4">
               <Typography variant="h6" color="blue-gray" className="uppercase">
@@ -184,6 +189,8 @@ const ProductPage = () => {
               ))}
             </div>
           </div>
+
+          {/* Độ tuổi */}
           <div>
             <div className="flex items-center justify-between mb-4">
               <Typography variant="h6" color="blue-gray" className="uppercase">
@@ -202,7 +209,36 @@ const ProductPage = () => {
               ))}
             </div>
           </div>
-          {/* Cụm dưới Drawer */}
+
+          {/* Chiều cao và Cân nặng */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div>
+              <Typography variant="h6" className="mb-2">
+                Chiều cao (cm)
+              </Typography>
+              <Input
+                type="number"
+                value={chieuCao}
+                onChange={(e) => setChieuCao(e.target.value)}
+                className="bg-white"
+                placeholder="VD: 160"
+              />
+            </div>
+            <div>
+              <Typography variant="h6" className="mb-2">
+                Cân nặng (kg)
+              </Typography>
+              <Input
+                type="number"
+                value={canNang}
+                onChange={(e) => setCanNang(e.target.value)}
+                className="bg-white"
+                placeholder="VD: 50"
+              />
+            </div>
+          </div>
+
+          {/* Footer nút */}
           <div className="flex flex-row absolute bottom-0 left-0 right-0 h-[10vh] bg-white">
             <button
               onClick={handleClearAll}
