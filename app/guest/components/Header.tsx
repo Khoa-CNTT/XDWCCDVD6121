@@ -241,7 +241,7 @@ const Header = ({
 
   const getKichThuoc = async () => {
     try {
-      const res = await fetch("/api/kichthuoc");
+      const res = await fetch("/api/size");
       const data = await res.json();
       setKichThuoc(data.datas || []);
     } catch (error) {
