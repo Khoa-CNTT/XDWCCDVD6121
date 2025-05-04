@@ -41,14 +41,6 @@ model Mau {
   updated_at DateTime  @updatedAt
 }
 
-model KichThuoc {
-  id         Int       @id @default(autoincrement())
-  kich_thuoc String
-  vaycuoi    VayCuoi[]
-  created_at DateTime  @default(now())
-  updated_at DateTime  @updatedAt
-}
-
 model DoTuoi {
   id         Int       @id @default(autoincrement())
   dotuoi     Int
@@ -62,12 +54,12 @@ model VayCuoi {
   ten                 String
   gia                 Int
   anh                 String
-  kich_thuoc_id       Int
   do_tuoi_id          Int
   mau_id              Int
+  size_id             Int
   mau_release         Mau       @relation(fields: [mau_id], references: [id])
-  kich_thuoc_relation KichThuoc @relation(fields: [kich_thuoc_id], references: [id])
   do_tuoi_relation    DoTuoi    @relation(fields: [do_tuoi_id], references: [id])
+  size_relation       Size      @relation(fields: [size_id], references: [id])
   created_at          DateTime  @default(now())
   updated_at          DateTime  @updatedAt
 }
@@ -154,3 +146,18 @@ model Administrator {
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 }
+
+model Size{
+  id Int @id @default(autoincrement())
+  size String
+  min_chieu_cao Int
+  max_chieu_cao Int
+  min_can_nang Int
+  max_can_nang Int
+  min_do_tuoi Int
+  max_do_tuoi Int
+  vaycuoi VayCuoi[]
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
