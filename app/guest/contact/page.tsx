@@ -6,7 +6,9 @@ import { useState } from "react";
 import { Mail, MapPin, Phone } from "lucide-react";
 import { Button, Input, Textarea } from "@material-tailwind/react";
 import { useRouter } from "next/navigation";
-
+import FlairButton from "../components/FlairButton";
+import ContactForm from "../components/ContactForm";
+import { ToastContainer } from "react-toastify";
 export default function ContactPage() {
   const router = useRouter();
   const [formData, setFormData] = useState({
@@ -132,13 +134,17 @@ export default function ContactPage() {
         </div>
       </div>
       <div className="flex flex-col justify-center items-center mt-10">
-        <Button
-          className="bg-rose-400 text-white"
-          onClick={() => router.push("/guest/faq")}
-        >
-          Cần thêm câu hỏi?
-        </Button>
+        <FlairButton
+          accentColor="#000"
+          primaryColor="#fff"
+          text="Cần thêm câu hỏi?"
+          onClick={() => {
+            router.push("/guest/faq");
+          }}
+        />
       </div>
+      <ContactForm />
+      <ToastContainer position="top-right" autoClose={2000} />
     </div>
   );
 }

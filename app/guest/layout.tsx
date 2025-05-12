@@ -34,7 +34,6 @@ export default function TestLayout({
     <div
       ref={scrollContainerRef}
       className="h-screen flex flex-col overflow-auto scrollbar-none"
-      suppressHydrationWarning
     >
       <Header scrolled={scrolled} isMainPage={isMainTestPage} />
       <div className={`flex-grow ${!isMainTestPage ? "pt-[8vh]" : ""}`}>

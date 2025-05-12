@@ -43,8 +43,6 @@ export async function PUT(
         max_chieu_cao: body.max_chieu_cao,
         min_can_nang: body.min_can_nang,
         max_can_nang: body.max_can_nang,
-        min_do_tuoi: body.min_do_tuoi,
-        max_do_tuoi: body.max_do_tuoi,
       },
     });
 

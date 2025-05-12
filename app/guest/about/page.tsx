@@ -1,14 +1,12 @@
 "use client";
 
-import { Button } from "@material-tailwind/react";
-import Link from "next/link";
+import FlairButton from "../components/FlairButton";
 
 export default function AboutPage() {
   return (
     <div className="container mx-auto px-4 py-12">
       <h1 className="text-3xl font-bold mb-8 text-center">About HADY</h1>
 
-      {/* Our Story */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center mb-16">
         <div>
           <h2 className="text-2xl font-bold mb-4">Câu chuyện của chúng tôi</h2>
@@ -38,7 +36,6 @@ export default function AboutPage() {
         </div>
       </div>
 
-      {/* Our Values */}
       <div className="mb-16">
         <h2 className="text-2xl font-bold mb-8 text-center">Các Giá Trị</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -67,13 +64,11 @@ export default function AboutPage() {
         </div>
       </div>
 
-      {/* Our Team */}
       <div className="mb-16">
         <h2 className="text-2xl font-bold mb-8 text-center">
           Các Thành Viên Trong Nhóm
         </h2>
 
-        {/* Team Leader */}
         <div className="mb-12">
           <div className="text-center max-w-md mx-auto">
             <div className="rounded-full overflow-hidden size-96 mx-auto mb-4">
@@ -88,9 +83,7 @@ export default function AboutPage() {
           </div>
         </div>
 
-        {/* Other Team Members */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mt-8">
-          {/* Team Member 2 */}
           <div className="text-center">
             <div className="rounded-full overflow-hidden h-48 w-48 mx-auto mb-4">
               <img
@@ -103,7 +96,6 @@ export default function AboutPage() {
             <p className="text-gray-500">Co-Founder & Developer</p>
           </div>
 
-          {/* Team Member 3 */}
           <div className="text-center">
             <div className="rounded-full overflow-hidden h-48 w-48 mx-auto mb-4">
               <img
@@ -116,7 +108,6 @@ export default function AboutPage() {
             <p className="text-gray-500">Designer & Developer</p>
           </div>
 
-          {/* Team Member 4 */}
           <div className="text-center">
             <div className="rounded-full overflow-hidden h-48 w-48 mx-auto mb-4">
               <img
@@ -129,7 +120,6 @@ export default function AboutPage() {
             <p className="text-gray-500">Designer & Developer</p>
           </div>
 
-          {/* Team Member 5 */}
           <div className="text-center">
             <div className="rounded-full overflow-hidden h-48 w-48 mx-auto mb-4">
               <img
@@ -144,7 +134,6 @@ export default function AboutPage() {
         </div>
       </div>
 
-      {/* CTA */}
       <div className="bg-rose-50 rounded-lg p-8 text-center">
         <h2 className="text-2xl font-bold mb-4">
           Bạn sẵn sàng để tìm kiếm những phụ kiện cưới hoàn hảo cho mình?
@@ -153,9 +142,7 @@ export default function AboutPage() {
           Khám phá bộ sưu tập phụ kiện cưới thủ công, trang sức và phụ kiện tóc
           được thiết kế để làm cho ngày cưới của bạn thêm đặc biệt.
         </p>
-        <Button className="bg-rose-400 hover:bg-rose-500">
-          <Link href="/guest/vaycuoi">Mua Ngay</Link>
-        </Button>
+        <FlairButton text="Mua Ngay" className="bg-black" />
       </div>
     </div>
   );

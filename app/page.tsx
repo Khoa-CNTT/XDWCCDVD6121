@@ -1,9 +1,6 @@
 import GuestPage from "@/app/guest/page";
+import { redirect } from "next/navigation";
 
 export default function Home() {
-  return (
-    <div>
-      <GuestPage />
-    </div>
-  );
+  return redirect("/guest");
 }

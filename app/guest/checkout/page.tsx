@@ -19,7 +19,7 @@ interface Mau {
 
 interface KichThuoc {
   id: number;
-  kich_thuoc: string;
+  size: string;
 }
 
 interface DoTuoi {
@@ -50,7 +50,7 @@ interface CartItem {
   gia_thue?: number;
   gia_makeup?: number;
   mau_id?: number;
-  kich_thuoc_id?: number;
+  size_id?: number;
   so_ghe_id?: number;
   so_day_ghe_id?: number;
   mau_rap?: string;
@@ -202,8 +202,8 @@ const CheckoutPage = () => {
       return (item as Mau).ten_mau;
     }
 
-    if (key === "kich_thuoc") {
-      return (item as KichThuoc).kich_thuoc;
+    if (key === "size") {
+      return (item as KichThuoc).size;
     }
 
     if (key === "do_tuoi") {
@@ -232,14 +232,16 @@ const CheckoutPage = () => {
     switch (item.type) {
       case "vaycuoi":
         return {
-          primary:
-            mau.length > 0 && item.mau_id
+          primary: `Màu: ${
+            item.mau_id
               ? getValueById(mau, item.mau_id, "mau")
-              : "Không xác định",
-          secondary:
-            kichThuoc.length > 0 && item.kich_thuoc_id
-              ? getValueById(kichThuoc, item.kich_thuoc_id, "kich_thuoc")
-              : "Không xác định",
+              : "Không xác định"
+          }`,
+          secondary: `Kích thước: ${
+            item.size_id
+              ? getValueById(kichThuoc, item.size_id, "size")
+              : "Không xác định"
+          }`,
         };
       case "rapcuoi":
         return {
@@ -252,7 +254,7 @@ const CheckoutPage = () => {
             item.so_ghe_id
               ? getValueById(soGhe, item.so_ghe_id, "so_ghe")
               : "Không xác định"
-          } / Số dãy: ${
+          } / Số dãy ghế: ${
             item.so_day_ghe_id
               ? getValueById(soDayGhe, item.so_day_ghe_id, "so_day_ghe")
               : "Không xác định"
@@ -301,7 +303,7 @@ const CheckoutPage = () => {
     }));
   };
 
-  const handlePlaceOrder = () => {
+  const handlePlaceOrder = async () => {
     if (
       !shippingInfo.firstName ||
       !shippingInfo.lastName ||
@@ -319,16 +321,31 @@ const CheckoutPage = () => {
     }
 
     try {
-      toast.success(
-        "Đặt hàng thành công! Cảm ơn bạn đã mua sắm cùng chúng tôi."
-      );
+      const res = await fetch("/api/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ten_khach_hang: `${shippingInfo.lastName} ${shippingInfo.firstName}`,
+          so_dien_thoai: shippingInfo.phone,
+          dia_chi: shippingInfo.address,
+          email: shippingInfo.email,
+          payment_method: paymentMethod.toUpperCase(), // "COD"
+          so_tien: total,
+        }),
+      });
 
-      localStorage.removeItem("cart");
-      setCartItems([]);
+      const data = await res.json();
 
-      setTimeout(() => {
-        router.push("/guest");
-      }, 2000);
+      if (data.success) {
+        toast.success("Đặt hàng thành công! Cảm ơn bạn đã mua sắm.");
+        localStorage.removeItem("cart");
+        setCartItems([]);
+        setTimeout(() => {
+          router.push("/guest");
+        }, 2000);
+      } else {
+        toast.error("Lỗi đặt hàng: " + data.message);
+      }
     } catch (error) {
       console.error("Lỗi khi đặt hàng:", error);
       toast.error("Đã xảy ra lỗi khi đặt hàng. Vui lòng thử lại sau.");

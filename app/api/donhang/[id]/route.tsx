@@ -1,6 +1,31 @@
 import prisma from "@/prisma/pclient";
 import { NextRequest, NextResponse } from "next/server";
 
+export async function GET(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  const id = parseInt(params.id);
+
+  try {
+    const donHang = await prisma.donHang.findUnique({
+      where: { id },
+    });
+
+    if (!donHang) {
+      return NextResponse.json(
+        { message: "Không tìm thấy đơn hàng" },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json(donHang, { status: 200 });
+  } catch (error) {
+    console.error("Lỗi lấy đơn hàng:", error);
+    return NextResponse.json({ message: "Lỗi server" }, { status: 500 });
+  }
+}
+
 export async function DELETE(
   request: NextRequest,
   { params }: { params: { id: string } }

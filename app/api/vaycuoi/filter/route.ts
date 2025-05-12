@@ -10,7 +10,6 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ message: "Invalid input" }, { status: 400 });
     }
 
-    // Tìm các size phù hợp với chiều cao và cân nặng người dùng
     const suitableSizes = await prisma.size.findMany({
       where: {
         min_chieu_cao: { lte: chieu_cao },
@@ -27,7 +26,6 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ datas: [] }, { status: 200 });
     }
 
-    // Lọc váy cưới có size phù hợp
     const vayPhuHop = await prisma.vayCuoi.findMany({
       where: {
         size_id: { in: sizeIds },

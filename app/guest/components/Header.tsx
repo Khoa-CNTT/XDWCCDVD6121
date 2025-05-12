@@ -34,7 +34,7 @@ interface VayCuoi {
   anh: string;
   gia: number;
   id_mau_vay: number;
-  id_kich_thuoc: number;
+  id_size: number;
   id_do_tuoi: number;
 }
 
@@ -45,7 +45,7 @@ interface Mau {
 
 interface KichThuoc {
   id: number;
-  kich_thuoc: string;
+  size: string;
 }
 
 interface DoTuoi {
@@ -76,7 +76,7 @@ interface CartItem {
   gia_thue?: number;
   gia_makeup?: number;
   mau_id?: number;
-  kich_thuoc_id?: number;
+  size_id?: number;
   so_ghe_id?: number;
   so_day_ghe_id?: number;
   mau_rap?: string;
@@ -115,6 +115,7 @@ const Header = ({
   const [cartCount, setCartCount] = useState<number>(0);
   const [phongCachList, setPhongCachList] = useState<any[]>([]);
   const [openMobileMenu, setOpenMobileMenu] = useState(false);
+  const [searchOrderId, setSearchOrderId] = useState("");
 
   //Đảm bảo component được mounted ở client trước khi sử dụng các tính năng client-side
   useEffect(() => {
@@ -301,8 +302,8 @@ const Header = ({
       return (item as Mau).ten_mau;
     }
 
-    if (key === "kich_thuoc") {
-      return (item as KichThuoc).kich_thuoc;
+    if (key === "size") {
+      return (item as KichThuoc).size;
     }
 
     if (key === "do_tuoi") {
@@ -412,14 +413,16 @@ const Header = ({
     switch (item.type) {
       case "vaycuoi":
         return {
-          primary:
-            mau.length > 0 && item.mau_id
+          primary: `Màu: ${
+            item.mau_id
               ? getValueById(mau, item.mau_id, "mau")
-              : "Không xác định",
-          secondary:
-            kichThuoc.length > 0 && item.kich_thuoc_id
-              ? getValueById(kichThuoc, item.kich_thuoc_id, "kich_thuoc")
-              : "Không xác định",
+              : "Không xác định"
+          }`,
+          secondary: `Kích thước: ${
+            item.size_id
+              ? getValueById(kichThuoc, item.size_id, "size")
+              : "Không xác định"
+          }`,
         };
       case "rapcuoi":
         return {
@@ -462,6 +465,13 @@ const Header = ({
         };
     }
   };
+  const handleSearchOrder = () => {
+    if (!searchOrderId.trim()) return;
+    router.push(`/guest/search/${searchOrderId.trim()}`);
+    setShowInput(false);
+    setExpandHeader(false);
+    setSearchOrderId("");
+  };
 
   return (
     <>
@@ -486,8 +496,9 @@ const Header = ({
         data-id="header-test"
       >
         {/* Desktop Header */}
-        <div className="hidden md:flex flex-row justify-between items-center h-[8vh]">
-          <div className="basis-1/5 transition duration-300 px-10">
+        <div className="hidden md:flex items-center justify-between px-10 h-[8vh]">
+          {/* Logo */}
+          <div className="shrink-0">
             <button onClick={handleHomeClick}>
               <Image
                 src="/Logo.png"
@@ -500,21 +511,22 @@ const Header = ({
               />
             </button>
           </div>
+
+          {/* Navigation */}
           <div
-            className={`basis-2/5 flex flex-row justify-evenly transition duration-300 tracking-tight text-lg 
-              ${
-                scrolled || !isMainPage ? "text-black" : "text-white"
-              } group-hover:text-black`}
+            className={`flex-1 flex justify-center space-x-10 text-lg tracking-tight transition duration-300 
+      ${
+        scrolled || !isMainPage ? "text-black" : "text-white"
+      } group-hover:text-black`}
           >
             <button
-              className={`uppercase alumni2 relative after:absolute after:bottom-0 after:left-0 after:h-[1px] after:transition-all after:duration-300 after:bg-black after:w-0 hover:after:w-full`}
+              className="uppercase alumni2 relative after:absolute after:bottom-0 after:left-0 after:h-[1px] after:transition-all after:duration-300 after:bg-black after:w-0 hover:after:w-full"
               onClick={handleHomeClick}
             >
               Trang chủ
             </button>
             <button
-              className={`uppercase alumni2 relative after:absolute after:bottom-0 after:left-0 after:h-[1px] after:transition-all after:duration-300 after:bg-black
-              ${
+              className={`uppercase alumni2 relative after:absolute after:bottom-0 after:left-0 after:h-[1px] after:bg-black after:transition-all after:duration-300 ${
                 pathname === "/guest/vaycuoi"
                   ? "after:w-full"
                   : "after:w-0 hover:after:w-full"
@@ -524,8 +536,7 @@ const Header = ({
               Váy cưới
             </button>
             <button
-              className={`uppercase alumni2 relative after:absolute after:bottom-0 after:left-0 after:h-[1px] after:transition-all after:duration-300 after:bg-black
-              ${
+              className={`uppercase alumni2 relative after:absolute after:bottom-0 after:left-0 after:h-[1px] after:bg-black after:transition-all after:duration-300 ${
                 pathname === "/guest/rapcuoi"
                   ? "after:w-full"
                   : "after:w-0 hover:after:w-full"
@@ -535,59 +546,60 @@ const Header = ({
               Rạp cưới
             </button>
             <button
-              className={`uppercase alumni2 relative after:absolute after:bottom-0 after:left-0 after:h-[1px] after:transition-all after:duration-300 after:bg-black
-              ${
+              className={`uppercase alumni2 relative after:absolute after:bottom-0 after:left-0 after:h-[1px] after:bg-black after:transition-all after:duration-300 ${
                 pathname === "/guest/makeup"
                   ? "after:w-full"
                   : "after:w-0 hover:after:w-full"
               }`}
               onClick={() => router.push("/guest/makeup")}
             >
-              make up
+              Make up
             </button>
           </div>
 
-          <div>
+          {/* Search + Cart */}
+          <div
+            className={`shrink-0 flex items-center space-x-10 text-md tracking-tight transition duration-300 
+      ${
+        scrolled || !isMainPage ? "text-black" : "text-white"
+      } group-hover:text-black`}
+          >
+            {/* Search */}
             <div
-              className={`px-12 basis-1/5 flex justify-between items-center gap-x-10 transition duration-300 tracking-tight
-                ${
-                  scrolled || !isMainPage ? "text-black" : "text-white"
-                } group-hover:text-black`}
+              onMouseEnter={handleMouseEnter}
+              onMouseLeave={handleMouseLeave}
             >
-              <div
-                onMouseEnter={handleMouseEnter}
-                onMouseLeave={handleMouseLeave}
-              >
-                <button className="uppercase alumni2 text-md relative after:absolute after:bottom-0 after:left-0 after:h-[1px] after:w-0 hover:after:w-full after:bg-black after:transition-all after:duration-300">
-                  Search
-                </button>
-              </div>
-              <div className="flex items-center space-x-4 relative after:absolute after:bottom-0 after:left-0 after:h-[1px] after:w-0 hover:after:w-full after:bg-black after:transition-all after:duration-300">
-                {cartCount > 0 ? (
-                  <Badge
-                    content={cartCount}
-                    className={`bg-white/30 backdrop-blur-sm rounded-xl cursor-pointer absolute -right-3 text-black bg-none bg-clip-text font-normal transition-colors duration-300 ${
-                      scrolled || !isMainPage ? "text-black" : "text-white"
-                    } group-hover:text-black`}
-                  >
-                    <button
-                      onClick={handleCartClick}
-                      className="uppercase alumni2 text-md relative "
-                    >
-                      Giỏ Hàng
-                    </button>
-                  </Badge>
-                ) : (
+              <button className="uppercase alumni2 relative after:absolute after:bottom-0 after:left-0 after:h-[1px] after:w-0 hover:after:w-full after:bg-black after:transition-all after:duration-300">
+                Search
+              </button>
+            </div>
+
+            {/* Cart */}
+            <div className="relative after:absolute after:bottom-0 after:left-0 after:h-[1px] after:w-0 hover:after:w-full after:bg-black after:transition-all after:duration-300">
+              {cartCount > 0 ? (
+                <Badge
+                  content={cartCount}
+                  className={`bg-white/30 backdrop-blur-sm rounded-xl cursor-pointer absolute -right-3 text-black bg-none bg-clip-text font-normal transition-colors duration-300 ${
+                    scrolled || !isMainPage ? "text-black" : "text-white"
+                  } group-hover:text-black`}
+                >
                   <button
                     onClick={handleCartClick}
-                    className={`uppercase alumni2 text-md relative after:absolute after:bottom-0 after:left-0 after:h-[1px] after:w-0 hover:after:w-full after:bg-black after:transition-all after:duration-300 transition-colors duration-300 ${
-                      scrolled || !isMainPage ? "text-black" : "text-white"
-                    } group-hover:text-black`}
+                    className="uppercase alumni2 text-md relative"
                   >
                     Giỏ Hàng
                   </button>
-                )}
-              </div>
+                </Badge>
+              ) : (
+                <button
+                  onClick={handleCartClick}
+                  className={`uppercase alumni2 text-md relative after:absolute after:bottom-0 after:left-0 after:h-[1px] after:w-0 hover:after:w-full after:bg-black after:transition-all after:duration-300 transition-colors duration-300 ${
+                    scrolled || !isMainPage ? "text-black" : "text-white"
+                  } group-hover:text-black`}
+                >
+                  Giỏ Hàng
+                </button>
+              )}
             </div>
           </div>
         </div>
@@ -664,8 +676,12 @@ const Header = ({
                   ref={inputRef}
                   variant="static"
                   className="border-b"
+                  placeholder="Nhập mã đơn hàng"
+                  value={searchOrderId}
+                  onChange={(e) => setSearchOrderId(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && handleSearchOrder()}
                   icon={
-                    <button>
+                    <button onClick={handleSearchOrder}>
                       <HiArrowLongRight className="size-6" color="black" />
                     </button>
                   }

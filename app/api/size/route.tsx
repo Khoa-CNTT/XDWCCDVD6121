@@ -14,8 +14,6 @@ export async function POST(request: NextRequest) {
       max_chieu_cao: data.max_chieu_cao,
       min_can_nang: data.min_can_nang,
       max_can_nang: data.max_can_nang,
-      min_do_tuoi: data.min_do_tuoi,
-      max_do_tuoi: data.max_do_tuoi,
     },
   });
   return NextResponse.json({ datas: datas }, { status: 201 });

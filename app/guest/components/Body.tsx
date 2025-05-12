@@ -1,53 +1,191 @@
 import { Button } from "@material-tailwind/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { SplitText } from "gsap/SplitText";
+import { VolumeX, Volume2 } from "lucide-react";
+import { useGSAP } from "@gsap/react";
+import { Pacifico } from "next/font/google";
+
+import "@fontsource/pacifico";
+
+const pacifico = Pacifico({
+  subsets: ["latin"],
+  weight: ["400"],
+  variable: "--font-pacifico",
+});
 
 const Body = () => {
   const router = useRouter();
-  const [activeSlide, setActiveSlide] = useState(0);
+  const heroRef = useRef<HTMLDivElement>(null);
+  const heroTextRef = useRef<HTMLDivElement>(null);
+  const [isMuted, setIsMuted] = useState(true);
+  const videoRef = useRef<HTMLVideoElement>(null);
 
-  const slideImages = [
-    "https://i.imgur.com/9Qqw20E.jpeg",
-    // "https://i.imgur.com/t0OXRg1.png",
-    "https://i.imgur.com/6Dwiws7.png",
-  ];
-
+  /* Mute video */
+  const toggleMute = () => {
+    if (videoRef.current) {
+      videoRef.current.muted = !isMuted;
+      setIsMuted(!isMuted);
+    }
+  };
   useEffect(() => {
-    const interval = setInterval(() => {
-      setActiveSlide((prevSlide) => (prevSlide + 1) % slideImages.length);
-    }, 5000);
-    return () => clearInterval(interval);
+    if (videoRef.current) {
+      videoRef.current.muted = isMuted;
+    }
+  }, [isMuted]);
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (!videoRef.current) return;
+
+      const video = videoRef.current;
+
+      if (document.visibilityState === "hidden") {
+        video.pause();
+      } else if (document.visibilityState === "visible") {
+        // Delay nhỏ để đảm bảo DOM ổn định
+        setTimeout(() => {
+          // Chỉ gọi play nếu video bị pause
+          if (video.paused) {
+            const playPromise = video.play();
+            if (playPromise !== undefined) {
+              playPromise.catch((err) => {
+                console.warn("Không thể tự động phát lại video:", err);
+              });
+            }
+          }
+        }, 100);
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, []);
+
+  /* Parallax */
+  useGSAP(() => {
+    if (!heroRef.current || !heroTextRef.current) return;
+
+    gsap.registerPlugin(ScrollTrigger);
+
+    gsap.to(heroRef.current, {
+      y: -100,
+      ease: "none",
+      scrollTrigger: {
+        trigger: heroRef.current,
+        start: "top top",
+        end: "+=600",
+        scrub: true,
+      },
+    });
+
+    gsap.to(heroTextRef.current, {
+      y: -60,
+      ease: "none",
+      scrollTrigger: {
+        trigger: heroRef.current,
+        start: "top top",
+        end: "+=600",
+        scrub: true,
+      },
+    });
+  }, []);
+
+  /* Split Hero Text */
+  useGSAP(() => {
+    gsap.registerPlugin(SplitText, ScrollTrigger);
+
+    const runAnimation = () => {
+      const split = SplitText.create(".main-text", {
+        type: "chars",
+        charsClass: "char",
+      });
+      const tl = gsap.timeline();
+
+      tl.fromTo(
+        split.chars,
+        {
+          opacity: 0,
+          y: 100,
+          scale: 0.8,
+        },
+        {
+          opacity: 1,
+          y: 0,
+          scale: 1,
+          ease: "back.out(1.7)",
+          duration: 1.2,
+          delay: 7,
+          stagger: {
+            amount: 1,
+            from: "start",
+            ease: "power2.inOut",
+          },
+          onStart: () => {
+            gsap.to(".main-text", { opacity: 1, duration: 0.01 });
+          },
+        }
+      );
+      tl.to(split.chars, {
+        y: 200,
+        ease: "back.out(1.7)",
+      });
+    };
+
+    if (document.readyState === "complete") {
+      runAnimation();
+    } else {
+      window.addEventListener("load", runAnimation);
+      return () => window.removeEventListener("load", runAnimation);
+    }
   }, []);
 
   return (
     <div className="h-full bg-white">
       {/* Hero div */}
-      <div className="relative w-full h-screen">
-        {slideImages.map((image, index) => (
-          <button
-            key={index}
-            onClick={() => router.push("/guest/vaycuoi")}
-            className={`absolute w-full h-full transition-opacity duration-1000 ${
-              activeSlide === index
-                ? "opacity-100"
-                : "opacity-0 pointer-events-none"
-            }`}
-          >
-            <img
-              src={image}
-              alt={`slide-${index}`}
-              className="w-full h-full object-cover"
-            />
-            <p
-              className="absolute alumni2 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-white text-5xl font-bold uppercase"
-              style={{ textShadow: "4px 4px 10px rgba(0, 0, 0, 0.8)" }}
-            >
-              wedding is a very important part
-            </p>
-            <div className="absolute top-0 left-0 w-full h-36 bg-gradient-to-b from-black/70 to-transparent"></div>
-          </button>
-        ))}
+      <div
+        ref={heroRef}
+        className=" hidden md:block hero relative w-full h-screen"
+      >
+        <video
+          ref={videoRef}
+          autoPlay
+          muted={isMuted}
+          loop
+          playsInline
+          className="absolute top-0 left-0 w-full h-full object-cover"
+        >
+          <source src="/wedding.mp4" type="video/mp4" />
+          Trình duyệt của bạn không hỗ trợ video.
+        </video>
+        <button
+          onClick={toggleMute}
+          className="absolute bottom-9 left-7 z-30 bg-white/80 text-black p-2 rounded-full shadow-md hover:bg-white transition"
+        >
+          {isMuted ? <VolumeX size={24} /> : <Volume2 size={24} />}
+        </button>
+
+        <div
+          ref={heroTextRef}
+          className="main-text opacity-0 font-pacifico absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center will-change-transform text-6xl md:text-9xl text-white font-bold z-20"
+        >
+          <p>Your love</p>
+          <p className="inline-block font-pacifico w-fit mt-2 text-6xl md:text-9xl font-bold text-white">
+            Our passion
+          </p>
+        </div>
+        <div className="absolute inset-0 bg-black/10 z-10 pointer-events-none"></div>
+      </div>
+      <div className="relative w-full h-screen md:hidden">
+        <img
+          src="https://i.imgur.com/9Qqw20E.jpeg"
+          alt="mobile-hero"
+          className="absolute top-0 left-0 w-full h-full object-cover"
+        />
       </div>
       {/* Phần các ảnh bên dưới */}
       <div className="grid grid-cols-1 md:flex md:flex-row my-3 md:space-x-3 mx-3 bg-white overflow-hidden">
@@ -103,26 +241,6 @@ const Body = () => {
           }
         }
       `}</style>
-      {/* Second hero div */}
-      <div className="hidden md:block relative h-[70vh]">
-        <div className="h-full">
-          <div className="absolute inset-0 " />
-          <img
-            src="https://i.imgur.com/Z8CIRof.png"
-            alt="Wedding accessories"
-            className="w-full h-full object-cover"
-          />
-        </div>
-        <div className="absolute inset-0 flex items-end justify-center pb-12">
-          <Button
-            size="lg"
-            className="bg-rose-500 hover:bg-rose-400"
-            onClick={() => router.push("/guest/vaycuoi")}
-          >
-            Tìm hiểu ngay
-          </Button>
-        </div>
-      </div>
       {/* Categories */}
       <div className="py-16 bg-[#FDF8F6]">
         <div className=" mx-auto px-4">

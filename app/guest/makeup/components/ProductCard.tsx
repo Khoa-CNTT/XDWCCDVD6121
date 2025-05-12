@@ -225,63 +225,58 @@ const ProductCard: React.FC<ProductCardProps> = ({ filters }) => {
 
       {selectedProduct && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 text-black"
+          className="absolute inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
           onClick={closeModal}
         >
           <div
-            className="bg-white p-4 md:p-6 rounded-lg w-[95vw] md:w-[90vw] h-[90vh] flex flex-col md:flex-row justify-between overflow-y-auto md:overflow-hidden"
+            className="absolute top-14 md:top-36 bg-white rounded-xl w-[95vw] md:w-[80vw] max-w-6xl h-[90vh] md:h-[80vh] shadow-xl overflow-hidden flex flex-col md:flex-row"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Khoảng trống bên trái - chỉ hiển thị trên desktop */}
-            <div className="hidden md:block md:w-1/3"></div>
+            {/* Nút đóng */}
+            <button
+              onClick={closeModal}
+              className="absolute top-3 right-3 text-gray-600 hover:text-black text-xl z-10"
+              aria-label="Đóng"
+            >
+              &times;
+            </button>
 
-            {/* Ảnh sản phẩm */}
-            <div className="w-full md:w-1/3 bg-gray-100 h-[40vh] md:h-full">
+            {/* Ảnh makeup artist */}
+            <div className="w-full md:w-1/2 h-[40vh] md:h-full overflow-hidden bg-gray-100">
               <img
                 src={selectedProduct.anh_makeup}
                 alt={selectedProduct.ten_makeup}
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover rounded-t-xl md:rounded-l-xl md:rounded-tr-none"
               />
             </div>
 
             {/* Thông tin chi tiết */}
-            <div className="w-full md:w-1/3 h-full flex flex-col justify-start md:justify-center items-center tracking-tighter pt-6 md:pt-0">
-              <div className="flex flex-col items-start justify-start w-[90%] md:w-[70%]">
-                <div className="big-shoulders text-sm opacity-90 tracking-tighter">
-                  Makeup Artist
-                </div>
-                {/* Tên sản phẩm */}
-                <div className="big-shoulders text-2xl md:text-3xl tracking-tighter">
+            <div className="w-full md:w-1/2 p-6 flex flex-col justify-between">
+              <div className="space-y-4">
+                <h2 className="text-2xl md:text-3xl font-bold text-gray-800">
                   {selectedProduct.ten_makeup}
-                </div>
-                {/* Giá sản phẩm */}
-                <div className="big-shoulders text-sm opacity-50 tracking-tighter mt-1 mb-4">
+                </h2>
+                <p className="text-lg font-semibold text-pink-600">
                   {selectedProduct.gia_makeup.toLocaleString()}₫
-                </div>
+                </p>
 
-                {/* Thông tin chi tiết sản phẩm */}
-                <div className="space-y-2 mb-4">
-                  {/* Phong cách */}
-                  <div className="flex">
-                    <span className="w-24 font-medium">Phong cách:</span>
-                    <span>
-                      {getPhongCachName(selectedProduct.phong_cach_id)}
-                    </span>
-                  </div>
-
-                  {/* Chi tiết */}
+                <div className="text-sm text-gray-700 space-y-2">
+                  <p>
+                    <span className="font-semibold">Phong cách:</span>{" "}
+                    {getPhongCachName(selectedProduct.phong_cach_id)}
+                  </p>
                   {selectedProduct.chi_tiet && (
-                    <div className="flex">
-                      <span className="w-24 font-medium">Chi tiết:</span>
-                      <span>{selectedProduct.chi_tiet}</span>
-                    </div>
+                    <p>
+                      <span className="font-semibold">Chi tiết:</span>{" "}
+                      {selectedProduct.chi_tiet}
+                    </p>
                   )}
                 </div>
               </div>
 
               <button
                 onClick={() => addToCart(selectedProduct)}
-                className="mt-4 w-[90%] md:w-[70%] bg-gray-900 text-white px-4 py-3 uppercase hover:bg-gray-800 transition-colors"
+                className="mt-6 bg-gray-900 text-white px-6 py-3 rounded-lg hover:bg-gray-800 transition-all uppercase tracking-wide"
               >
                 Thêm vào giỏ hàng
               </button>

@@ -12,7 +12,7 @@ import { XMarkIcon, FunnelIcon } from "@heroicons/react/24/outline";
 
 interface Filters {
   mauVay: number[];
-  kichThuoc: number[];
+  size: number[];
   doTuoi: number[];
   chieuCao?: number;
   canNang?: number;
@@ -21,14 +21,14 @@ interface Filters {
 interface FilterData {
   id: number;
   ten_mau?: string;
-  kich_thuoc?: string;
+  size?: string;
   dotuoi?: number;
 }
 
 const ProductPage = () => {
   const [filters, setFilters] = useState<Filters>({
     mauVay: [],
-    kichThuoc: [],
+    size: [],
     doTuoi: [],
     chieuCao: undefined,
     canNang: undefined,
@@ -42,6 +42,8 @@ const ProductPage = () => {
   const [selectedDoTuoi, setSelectedDoTuoi] = useState<number[]>([]);
   const [chieuCao, setChieuCao] = useState<string>("");
   const [canNang, setCanNang] = useState<string>("");
+  const [tempChieuCao, setTempChieuCao] = useState<string>("");
+  const [tempCanNang, setTempCanNang] = useState<string>("");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -67,15 +69,43 @@ const ProductPage = () => {
     fetchData();
   }, []);
 
+  // Cập nhật lại filter khi người dùng bấm áp dụng
+  const applyFilters = () => {
+    // Cập nhật state chieuCao và canNang từ temp
+    setChieuCao(tempChieuCao);
+    setCanNang(tempCanNang);
+
+    // Cập nhật filters
+    setFilters({
+      mauVay: selectedMauVay,
+      size: selectedKichThuoc,
+      doTuoi: selectedDoTuoi,
+      chieuCao: tempChieuCao ? parseInt(tempChieuCao) : undefined,
+      canNang: tempCanNang ? parseInt(tempCanNang) : undefined,
+    });
+
+    // Đóng drawer
+    setOpen(false);
+  };
+
+  // Theo dõi thay đổi của các filter checkbox
   useEffect(() => {
     setFilters({
       mauVay: selectedMauVay,
-      kichThuoc: selectedKichThuoc,
+      size: selectedKichThuoc,
       doTuoi: selectedDoTuoi,
       chieuCao: chieuCao ? parseInt(chieuCao) : undefined,
       canNang: canNang ? parseInt(canNang) : undefined,
     });
   }, [selectedMauVay, selectedKichThuoc, selectedDoTuoi, chieuCao, canNang]);
+
+  // Khi mở drawer, cập nhật giá trị tạm thời từ giá trị hiện tại
+  useEffect(() => {
+    if (open) {
+      setTempChieuCao(chieuCao);
+      setTempCanNang(canNang);
+    }
+  }, [open, chieuCao, canNang]);
 
   const handleMauVayChange = (id: number) => {
     setSelectedMauVay((prev) =>
@@ -99,8 +129,8 @@ const ProductPage = () => {
     setSelectedMauVay([]);
     setSelectedKichThuoc([]);
     setSelectedDoTuoi([]);
-    setChieuCao("");
-    setCanNang("");
+    setTempChieuCao("");
+    setTempCanNang("");
   };
 
   const selectedFiltersCount =
@@ -178,12 +208,12 @@ const ProductPage = () => {
               </Typography>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8">
-              {kichThuoc.map((kich) => (
+              {kichThuoc.map((kichThuoc) => (
                 <Checkbox
-                  key={kich.id}
-                  label={kich.kich_thuoc}
-                  checked={selectedKichThuoc.includes(kich.id)}
-                  onChange={() => handleKichThuocChange(kich.id)}
+                  key={kichThuoc.id}
+                  label={kichThuoc.size}
+                  checked={selectedKichThuoc.includes(kichThuoc.id)}
+                  onChange={() => handleKichThuocChange(kichThuoc.id)}
                   className="hover:before:opacity-0"
                 />
               ))}
@@ -211,30 +241,39 @@ const ProductPage = () => {
           </div>
 
           {/* Chiều cao và Cân nặng */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            <div>
-              <Typography variant="h6" className="mb-2">
-                Chiều cao (cm)
-              </Typography>
-              <Input
-                type="number"
-                value={chieuCao}
-                onChange={(e) => setChieuCao(e.target.value)}
-                className="bg-white"
-                placeholder="VD: 160"
-              />
-            </div>
-            <div>
-              <Typography variant="h6" className="mb-2">
-                Cân nặng (kg)
-              </Typography>
-              <Input
-                type="number"
-                value={canNang}
-                onChange={(e) => setCanNang(e.target.value)}
-                className="bg-white"
-                placeholder="VD: 50"
-              />
+          <div className="flex flex-col gap-5">
+            <Typography
+              variant="h6"
+              color="blue-gray"
+              className="uppercase underline"
+            >
+              Nhập vào chiều cao và cân nặng
+            </Typography>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <div>
+                <Typography variant="h6" className="mb-2">
+                  Chiều cao (cm)
+                </Typography>
+                <Input
+                  type="number"
+                  value={tempChieuCao}
+                  onChange={(e) => setTempChieuCao(e.target.value)}
+                  className="bg-white"
+                  placeholder="VD: 160"
+                />
+              </div>
+              <div>
+                <Typography variant="h6" className="mb-2">
+                  Cân nặng (kg)
+                </Typography>
+                <Input
+                  type="number"
+                  value={tempCanNang}
+                  onChange={(e) => setTempCanNang(e.target.value)}
+                  className="bg-white"
+                  placeholder="VD: 50"
+                />
+              </div>
             </div>
           </div>
 
@@ -247,7 +286,7 @@ const ProductPage = () => {
               xoá
             </button>
             <button
-              onClick={() => setOpen(false)}
+              onClick={applyFilters}
               className="mt-4 w-full py-2 text-xl text-white bg-gray-900 border-t border-black uppercase font-semibold"
             >
               áp dụng
