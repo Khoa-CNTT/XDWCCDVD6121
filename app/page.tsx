@@ -1,6 +1,10 @@
+import GuestLayout from "./(guest)/layout";
+import GuestPage from "./(guest)/page";
 
 export default function Home() {
-  return <div>
-    only api
-  </div>;
+  return (
+    <GuestLayout>
+      <GuestPage />
+    </GuestLayout>
+  );
 }

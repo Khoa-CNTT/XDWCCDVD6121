@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -32,19 +26,18 @@ enum PaymentMethod {
   COD
 }
 
+enum VayStatus {
+  AVAILABLE
+  RENTED
+  MAINTENANCE
+  RESERVED // Add new status for reservation
+}
+
 model Mau {
   id         Int       @id @default(autoincrement())
   ten_mau    String
   vaycuoi    VayCuoi[]
   rapcuoi    RapCuoi[]
-  created_at DateTime  @default(now())
-  updated_at DateTime  @updatedAt
-}
-
-model KichThuoc {
-  id         Int       @id @default(autoincrement())
-  kich_thuoc String
-  vaycuoi    VayCuoi[]
   created_at DateTime  @default(now())
   updated_at DateTime  @updatedAt
 }
@@ -57,32 +50,54 @@ model DoTuoi {
   updated_at DateTime  @updatedAt
 }
 
+model VayInstance {
+  id           Int       @id @default(autoincrement())
+  ten          String
+  vay_id       Int
+  vay          VayCuoi   @relation(fields: [vay_id], references: [id], onDelete: Cascade)
+  status       VayStatus @default(AVAILABLE)
+  rental_start DateTime?
+  rental_end   DateTime?
+  reserved_at  DateTime? // Add this field to track reservation time
+  created_at   DateTime  @default(now())
+  updated_at   DateTime  @updatedAt
+}
+
 model VayCuoi {
-  id                  Int       @id @default(autoincrement())
-  ten                 String
-  gia                 Int
-  anh                 String
-  kich_thuoc_id       Int
-  do_tuoi_id          Int
-  mau_id              Int
-  mau_release         Mau       @relation(fields: [mau_id], references: [id])
-  kich_thuoc_relation KichThuoc @relation(fields: [kich_thuoc_id], references: [id])
-  do_tuoi_relation    DoTuoi    @relation(fields: [do_tuoi_id], references: [id])
-  created_at          DateTime  @default(now())
-  updated_at          DateTime  @updatedAt
+  id               Int           @id @default(autoincrement())
+  ten              String
+  gia              Int
+  anh              String
+  do_tuoi_id       Int
+  mau_id           Int
+  size_id          Int
+  instances        VayInstance[]
+  mau_release      Mau           @relation(fields: [mau_id], references: [id])
+  do_tuoi_relation DoTuoi        @relation(fields: [do_tuoi_id], references: [id])
+  size_relation    Size          @relation(fields: [size_id], references: [id])
+  created_at       DateTime      @default(now())
+  updated_at       DateTime      @updatedAt
 }
 
 model Transaction {
-  id             Int           @id @default(autoincrement())
-  so_tien        Int
-  payment_status PaymentStatus
-  donhang        DonHang[]
-  created_at     DateTime      @default(now())
-  updated_at     DateTime      @updatedAt
+  id                    Int            @id @default(autoincrement())
+  so_tien               Int
+  payment_status        PaymentStatus
+  payment_method        PaymentMethod?
+  orderCode             String? // For Payos orderCode
+  payos_checkout_url    String? // For Payos checkout URL
+  payos_qr_code         String?        @db.Text // For Payos QR code as text
+  payos_payment_link_id String? // For Payos payment link ID
+  processing_fee        Int? // For processing fee (1.5% for Payos)
+  completed_at          DateTime? // When payment was completed
+  donhang               DonHang[]
+  created_at            DateTime       @default(now())
+  updated_at            DateTime       @updatedAt
 }
 
 model DonHang {
   id                      Int           @id @default(autoincrement())
+  ma_don_hang             String        @unique
   order_status            OrderStatus
   payment_method          PaymentMethod
   ten_khach_hang          String
@@ -91,8 +106,42 @@ model DonHang {
   email                   String
   transaction_id          Int
   transaction_id_relation Transaction   @relation(fields: [transaction_id], references: [id])
+  orderItems              OrderItem[] // Thêm relation với OrderItem
+  tong_tien               Int // Thêm tổng tiền
   created_at              DateTime      @default(now())
   updated_at              DateTime      @updatedAt
+}
+
+model OrderItem {
+  id         Int     @id @default(autoincrement())
+  donhang_id Int
+  donhang    DonHang @relation(fields: [donhang_id], references: [id], onDelete: Cascade)
+
+  // Thông tin váy cưới nếu có
+  vay_id          Int?
+  vay_instance_id Int? // Added: Foreign key to VayInstance
+  // vay_instance    VayInstance? @relation(fields: [vay_instance_id], references: [id]) // Optional: if you want to access VayInstance directly from OrderItem
+  vay_ten         String? // Lưu tên váy tại thời điểm đặt hàng
+  vay_gia         Int? // Lưu giá váy tại thời điểm đặt hàng
+  vay_size        String? // Lưu size váy
+  vay_mau         String? // Lưu màu váy
+  ngay_muon       DateTime? // Ngày mượn váy
+  ngay_tra        DateTime? // Ngày trả váy
+
+  // Thông tin rạp cưới nếu có
+  rap_id       Int?
+  rap_ten      String? // Lưu tên rạp tại thời điểm đặt hàng
+  rap_gia      Int? // Lưu giá thuê rạp tại thời điểm đặt hàng
+  ngay_to_chuc DateTime? // Ngày tổ chức tiệc
+
+  // Thông tin makeup nếu có
+  makeup_id   Int?
+  makeup_ten  String? // Lưu tên gói makeup tại thời điểm đặt hàng
+  makeup_gia  Int? // Lưu giá makeup tại thời điểm đặt hàng
+  ngay_makeup DateTime? // Ngày makeup
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
 }
 
 model MakeUp {
@@ -153,4 +202,30 @@ model Administrator {
   email      String
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
+  tokens     Token[] // Quan hệ với model Token
+}
+
+model Token {
+  id            Int           @id @default(autoincrement())
+  token         String        @unique
+  administrator Administrator @relation(fields: [admin_id], references: [id], onDelete: Cascade)
+  admin_id      Int
+  purpose       String        @default("auth") // "auth" hoặc "reset"
+  expires       DateTime
+  created_at    DateTime      @default(now())
+  updated_at    DateTime      @updatedAt
+
+  @@index([token])
+}
+
+model Size {
+  id            Int       @id @default(autoincrement())
+  size          String
+  min_chieu_cao Int
+  max_chieu_cao Int
+  min_can_nang  Int
+  max_can_nang  Int
+  vaycuoi       VayCuoi[]
+  created_at    DateTime  @default(now())
+  updated_at    DateTime  @updatedAt
 }

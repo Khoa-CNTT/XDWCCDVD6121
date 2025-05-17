@@ -1,37 +1,70 @@
 import prisma from "@/prisma/pclient";
 import { NextRequest, NextResponse } from "next/server";
+import { randomBytes } from "crypto";
+
 export async function POST(request: NextRequest) {
-    const data = await request.json();
+  const data = await request.json();
 
-    // Kiểm tra xem password có được cung cấp không
-    if (!data.password) {
-        return NextResponse.json({ msg: "Password is required" }, { status: 400 });
-    }
+  if (!data.password) {
+    return NextResponse.json({ msg: "Mật khẩu là bắt buộc" }, { status: 400 });
+  }
 
-    // Kiểm tra xem có username hoặc email không
-    if (!data.username && !data.email) {
-        return NextResponse.json({ msg: "Username or email is required" }, { status: 400 });
-    }
+  if (!data.identifier) {
+    return NextResponse.json(
+      { msg: "Tên đăng nhập hoặc email là bắt buộc" },
+      { status: 400 }
+    );
+  }
 
-    // Tạo điều kiện tìm kiếm
-    const whereCondition: any = {
-        password: data.password
-    };
+  // Tìm người dùng bằng username hoặc email
+  const admin = await prisma.administrator.findFirst({
+    where: {
+      password: data.password,
+      OR: [
+        { username: data.identifier },
+        { email: data.identifier }
+      ]
+    },
+  });
+  if (admin) {
+    // Generate a random token
+    const tokenValue = randomBytes(32).toString('hex');
+    
+    // Set token expiration (30 days from now)
+    const expiryDate = new Date();
+    expiryDate.setDate(expiryDate.getDate() + 30);
 
-    // Thêm điều kiện tìm kiếm dựa trên username hoặc email
-    if (data.username) {
-        whereCondition.username = data.username;
-    } else if (data.email) {
-        whereCondition.email = data.email;
-    }
-
-    const datas = await prisma.administrator.findFirst({
-        where: whereCondition
+    // Delete old auth tokens for this admin
+    await prisma.token.deleteMany({
+      where: {
+        admin_id: admin.id,
+        purpose: "auth"
+      }
     });
 
-    if (datas) {
-        return NextResponse.json({ msg: "success" }, { status: 201 });
-    } else {
-        return NextResponse.json({ msg: "error" }, { status: 400 });
-    }
+    // Create a token in database
+    await prisma.token.create({
+      data: {
+        token: tokenValue,
+        admin_id: admin.id,
+        purpose: "auth",
+        expires: expiryDate,
+      },
+    });
+      // Set the token in cookies
+    const response = NextResponse.json({ msg: "success" }, { status: 201 });
+    
+    response.cookies.set({
+      name: 'token',
+      value: tokenValue,
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      expires: expiryDate,
+      path: '/',
+    });
+    
+    return response;
+  } else {
+    return NextResponse.json({ msg: "Thông tin đăng nhập không chính xác" }, { status: 400 });
+  }
 }
