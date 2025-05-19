@@ -54,7 +54,7 @@ export default function PaymentSuccessPage() {
           shippingInfo: JSON.parse(shippingInfo),
         };
 
-        console.log("Creating order with data:", requestData);
+        // console.log("Creating order with data:", requestData);
 
         // Create the order using the transaction
         const response = await fetch("/api/payos/create-order", {

@@ -29,6 +29,7 @@ interface VayCuoi {
   mau_id: number;
   size_id: number;
   do_tuoi_id: number;
+  chi_tiet: string;
   instances: VayInstance[];
   mau_release: { ten_mau: string };
   size_relation: { size: string };

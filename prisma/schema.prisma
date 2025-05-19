@@ -71,6 +71,7 @@ model VayCuoi {
   do_tuoi_id       Int
   mau_id           Int
   size_id          Int
+  chi_tiet         String
   instances        VayInstance[]
   mau_release      Mau           @relation(fields: [mau_id], references: [id])
   do_tuoi_relation DoTuoi        @relation(fields: [do_tuoi_id], references: [id])

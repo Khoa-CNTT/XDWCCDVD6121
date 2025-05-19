@@ -2,8 +2,15 @@
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, Loader2, PlusCircle } from "lucide-react";
+import {
+  Search,
+  Loader2,
+  PlusCircle,
+  ChevronDown,
+  ChevronUp,
+} from "lucide-react";
 import Image from "next/image";
+import { useState } from "react";
 import {
   Table,
   TableBody,
@@ -68,13 +75,33 @@ export default function MakeupTable({
   onPageChange,
   onPageSizeChange,
 }: MakeupTableProps) {
+  const [expandedDetails, setExpandedDetails] = useState<number[]>([]);
+
+  const toggleDetailExpansion = (id: number) => {
+    setExpandedDetails((prev) =>
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+    );
+  };
+
+  const isDetailExpanded = (id: number) => expandedDetails.includes(id);
+
+  const truncateText = (text: string, maxLength: number = 50) => {
+    if (!text) return "";
+    return text.length > maxLength
+      ? `${text.substring(0, maxLength)}...`
+      : text;
+  };
+
   const filteredMakeup = makeupList.filter((m) => {
     const s = search.toLowerCase();
     return (
       m.id.toString().includes(s) ||
       m.ten_makeup.toLowerCase().includes(s) ||
       m.gia_makeup.toString().includes(s) ||
-      (m.phong_cach_relation?.ten_phong_cach?.toLowerCase() || "").includes(s)
+      (m.phong_cach_relation?.ten_phong_cach?.toLowerCase() || "").includes(
+        s
+      ) ||
+      (m.chi_tiet || "").toLowerCase().includes(s)
     );
   });
 
@@ -136,6 +163,7 @@ export default function MakeupTable({
               <TableHead>TÊN DỊCH VỤ</TableHead>
               <TableHead>PHONG CÁCH</TableHead>
               <TableHead>GIÁ DỊCH VỤ</TableHead>
+              <TableHead>CHI TIẾT</TableHead>
               <TableHead className="w-[200px]">THAO TÁC</TableHead>
             </TableRow>
           </TableHeader>
@@ -143,7 +171,7 @@ export default function MakeupTable({
             {loading ? (
               <TableRow>
                 <TableCell
-                  colSpan={6}
+                  colSpan={7}
                   className="text-center text-muted-foreground py-6"
                 >
                   <div className="flex items-center justify-center">
@@ -155,7 +183,7 @@ export default function MakeupTable({
             ) : currentData.length === 0 ? (
               <TableRow>
                 <TableCell
-                  colSpan={6}
+                  colSpan={7}
                   className="text-center text-muted-foreground py-6"
                 >
                   Không có dữ liệu
@@ -188,7 +216,41 @@ export default function MakeupTable({
                     {makeup.phong_cach_relation?.ten_phong_cach}
                   </TableCell>
                   <TableCell>{formatPrice(makeup.gia_makeup)}</TableCell>
-
+                  <TableCell className="max-w-[300px]">
+                    {makeup.chi_tiet && (
+                      <div>
+                        <div className="text-sm text-gray-700 whitespace-normal">
+                          {isDetailExpanded(makeup.id)
+                            ? makeup.chi_tiet
+                            : truncateText(makeup.chi_tiet)}
+                        </div>
+                        {makeup.chi_tiet.length > 50 && (
+                          <Button
+                            variant="link"
+                            size="sm"
+                            className="mt-1 h-6 p-0 text-blue-600"
+                            onClick={() => toggleDetailExpansion(makeup.id)}
+                          >
+                            {isDetailExpanded(makeup.id) ? (
+                              <span className="flex items-center">
+                                Thu gọn <ChevronUp className="h-4 w-4 ml-1" />
+                              </span>
+                            ) : (
+                              <span className="flex items-center">
+                                Xem thêm{" "}
+                                <ChevronDown className="h-4 w-4 ml-1" />
+                              </span>
+                            )}
+                          </Button>
+                        )}
+                      </div>
+                    )}
+                    {!makeup.chi_tiet && (
+                      <span className="text-sm text-gray-500">
+                        Không có chi tiết
+                      </span>
+                    )}
+                  </TableCell>
                   <TableCell>
                     <div className="flex gap-2">
                       <Button

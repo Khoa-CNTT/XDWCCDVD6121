@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { DashboardStats, TopServiceStats } from "./types";
+import { DashboardStats, TopServiceFilter, TopServiceStats } from "./types";
 import { SummaryCards } from "./components/SummaryCards";
 import { RevenueBreakdown } from "./components/RevenueBreakdown";
 import { PopularServices } from "./components/PopularServices";
@@ -31,41 +31,47 @@ const Dashboard = () => {
     topMakeup: [],
   });
 
+  const [serviceFilter, setServiceFilter] = useState<TopServiceFilter>({
+    timePeriod: "all",
+    limit: 5,
+  });
+
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    // Fetch dashboard data from API
-    const fetchDashboardData = async () => {
-      try {
-        const response = await fetch("/api/admin/dashboard");
-        if (!response.ok) {
-          throw new Error("Failed to fetch dashboard data");
-        }
-        const data = await response.json();
-        setStats(data.stats);
-        setTopServices(data.topServices);
-      } catch (error) {
-        console.error("Error fetching dashboard data:", error);
-      } finally {
-        setIsLoading(false);
+  const fetchDashboardData = async (filter?: TopServiceFilter) => {
+    try {
+      setIsLoading(true);
+
+      // Build query string from filter
+      const queryParams = new URLSearchParams();
+      if (filter) {
+        queryParams.append("timePeriod", filter.timePeriod);
+        queryParams.append("limit", filter.limit.toString());
       }
-    };
 
-    fetchDashboardData();
-  }, []);
+      const url = `/api/admin/dashboard?${queryParams.toString()}`;
+      const response = await fetch(url);
 
-  // Format currency (VND)
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("vi-VN", {
-      style: "currency",
-      currency: "VND",
-    }).format(amount);
+      if (!response.ok) {
+        throw new Error("Failed to fetch dashboard data");
+      }
+
+      const data = await response.json();
+      setStats(data.stats);
+      setTopServices(data.topServices);
+    } catch (error) {
+      console.error("Error fetching dashboard data:", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  // Format percentage for stats
-  const calculatePercentage = (part: number, total: number) => {
-    if (total === 0) return 0;
-    return Math.round((part / total) * 100);
+  useEffect(() => {
+    fetchDashboardData(serviceFilter);
+  }, [serviceFilter]);
+
+  const handleFilterChange = (newFilter: TopServiceFilter) => {
+    setServiceFilter(newFilter);
   };
 
   if (isLoading) {
@@ -92,7 +98,11 @@ const Dashboard = () => {
       <RevenueBreakdown stats={stats} />
 
       {/* Popular Services */}
-      <PopularServices topServices={topServices} />
+      <PopularServices
+        topServices={topServices}
+        filter={serviceFilter}
+        onFilterChange={handleFilterChange}
+      />
     </div>
   );
 };

@@ -1,7 +1,14 @@
 "use client";
 
 import Image from "next/image";
-import { Eye, Pencil, Search, Trash2 } from "lucide-react";
+import {
+  Eye,
+  Pencil,
+  Search,
+  Trash2,
+  ChevronDown,
+  ChevronUp,
+} from "lucide-react";
 import { numberFormat } from "@/lib/utils";
 import {
   Table,
@@ -20,6 +27,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useState } from "react";
 
 interface VayInstance {
   id: number;
@@ -37,6 +45,7 @@ interface VayCuoi {
   mau_id: number;
   size_id: number;
   do_tuoi_id: number;
+  chi_tiet: string;
   instances: VayInstance[];
   mau_release: { ten_mau: string };
   size_relation: { size: string };
@@ -73,6 +82,12 @@ export function VayCuoiTable({
   onImageClick,
 }: VayCuoiTableProps) {
   const pageNumbers = Array.from({ length: totalPages }, (_, i) => i + 1);
+  const [expandedDetails, setExpandedDetails] = useState<number[]>([]);
+  const toggleDetails = (id: number) => {
+    setExpandedDetails((prev) =>
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+    );
+  };
 
   return (
     <div className="space-y-4">
@@ -102,8 +117,7 @@ export function VayCuoiTable({
             </SelectContent>
           </Select>
         </div>
-      </div>
-
+      </div>{" "}
       <div className="rounded-md border">
         <Table>
           <TableHeader>
@@ -115,6 +129,7 @@ export function VayCuoiTable({
               <TableHead>Kích thước</TableHead>
               <TableHead>Màu sắc</TableHead>
               <TableHead className="w-[100px]">Số lượng</TableHead>
+              <TableHead>Chi tiết</TableHead>
               <TableHead className="text-right w-[150px]">Thao tác</TableHead>
             </TableRow>
           </TableHeader>
@@ -122,7 +137,7 @@ export function VayCuoiTable({
             {data.length === 0 ? (
               <TableRow>
                 <TableCell
-                  colSpan={8}
+                  colSpan={9}
                   className="text-center text-muted-foreground py-6"
                 >
                   Không có dữ liệu
@@ -155,6 +170,37 @@ export function VayCuoiTable({
                     <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                       {vaycuoi.instances?.length || 0}
                     </span>
+                  </TableCell>
+                  <TableCell className="max-w-xs">
+                    <div className="text-sm">
+                      <div
+                        className={
+                          expandedDetails.includes(vaycuoi.id)
+                            ? ""
+                            : "line-clamp-1"
+                        }
+                      >
+                        {vaycuoi.chi_tiet || "Chưa có thông tin chi tiết"}
+                      </div>
+                      {vaycuoi.chi_tiet && vaycuoi.chi_tiet.length > 60 && (
+                        <Button
+                          variant="link"
+                          size="sm"
+                          className="px-0 text-blue-600"
+                          onClick={() => toggleDetails(vaycuoi.id)}
+                        >
+                          {expandedDetails.includes(vaycuoi.id) ? (
+                            <span className="flex items-center gap-1">
+                              Ẩn bớt <ChevronUp className="h-3 w-3" />
+                            </span>
+                          ) : (
+                            <span className="flex items-center gap-1">
+                              Xem thêm <ChevronDown className="h-3 w-3" />
+                            </span>
+                          )}
+                        </Button>
+                      )}
+                    </div>
                   </TableCell>
                   <TableCell>
                     <div className="flex justify-end gap-2">
@@ -191,7 +237,6 @@ export function VayCuoiTable({
           </TableBody>
         </Table>
       </div>
-
       {/* Pagination */}
       {totalPages > 1 && (
         <div className="flex items-center justify-between px-2">

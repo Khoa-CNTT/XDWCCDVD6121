@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { VayInstanceService } from "@/app/services/vayInstance.service";
 
 export async function POST(request: NextRequest) {
-  console.log("API_RELEASE: Received request to /api/vayinstance/release");
+  // console.log("API_RELEASE: Received request to /api/vayinstance/release");
   try {
     const body = await request.json();
     const { instanceId } = body;
@@ -15,13 +15,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.log(`API_RELEASE: Attempting to release instance ${instanceId}`);
+    // console.log(`API_RELEASE: Attempting to release instance ${instanceId}`);
 
     // First check if the instance exists and get its current state
     const instance = await VayInstanceService.getInstance(Number(instanceId));
 
     if (!instance) {
-      console.log(`API_RELEASE: Instance ${instanceId} not found`);
+      // console.log(`API_RELEASE: Instance ${instanceId} not found`);
       return NextResponse.json(
         { message: `Không tìm thấy váy với ID ${instanceId}` },
         { status: 404 }
@@ -30,9 +30,9 @@ export async function POST(request: NextRequest) {
 
     // If instance exists but is not in RESERVED state, we can return early
     if (instance.status !== "RESERVED") {
-      console.log(
-        `API_RELEASE: Instance ${instanceId} is not in RESERVED state (current: ${instance.status})`
-      );
+      // console.log(
+      //   `API_RELEASE: Instance ${instanceId} is not in RESERVED state (current: ${instance.status})`
+      // );
       return NextResponse.json(
         {
           message: `Váy hiện không ở trạng thái chờ (${instance.status})`,
@@ -66,7 +66,7 @@ export async function POST(request: NextRequest) {
       releasedInstance.status === "AVAILABLE" &&
       !releasedInstance.reserved_at
     ) {
-      console.log(`API_RELEASE: Successfully released instance ${instanceId}`);
+      // console.log(`API_RELEASE: Successfully released instance ${instanceId}`);
       return NextResponse.json(
         {
           message: "Đã giải phóng váy thành công",

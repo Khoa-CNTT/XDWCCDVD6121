@@ -23,6 +23,7 @@ interface VayCuoi {
   mau_id: number;
   size_id: number;
   do_tuoi_id: number;
+  chi_tiet: string;
   instances: VayInstance[];
   mau_release: Mau;
   size_relation: KichThuoc;
@@ -512,6 +513,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ filters }) => {
             size: selectedVay.size_relation?.size,
             mau: selectedVay.mau_release?.ten_mau,
             doTuoi: selectedVay.do_tuoi_relation?.dotuoi,
+            chiTiet: selectedVay.chi_tiet,
           }}
         />
       )}

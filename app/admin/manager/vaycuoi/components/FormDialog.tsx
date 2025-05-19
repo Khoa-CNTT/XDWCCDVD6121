@@ -18,6 +18,7 @@ import { Loader2 } from "lucide-react";
 import { SizeCombobox } from "@/components/ui/size-combobox";
 import { MauCombobox } from "@/components/ui/mau-combobox";
 import { DoTuoiCombobox } from "@/components/ui/dotuoi-combobox";
+import { Textarea } from "@/components/ui/textarea";
 
 interface VayInstance {
   id: number;
@@ -35,6 +36,7 @@ interface VayCuoi {
   mau_id: number;
   size_id: number;
   do_tuoi_id: number;
+  chi_tiet: string;
   instances: VayInstance[];
   mau_release: { ten_mau: string };
   size_relation: { size: string };
@@ -93,6 +95,7 @@ export function FormDialog({
     anh: "",
     mau_id: 0,
     size_id: 0,
+    chi_tiet: "",
     do_tuoi_id: 0,
     so_luong: 1,
   });
@@ -104,6 +107,7 @@ export function FormDialog({
     anh: "",
     mau_id: "",
     size_id: "",
+    chi_tiet: "",
     do_tuoi_id: "",
     so_luong: "",
   });
@@ -119,6 +123,7 @@ export function FormDialog({
       anh: "",
       mau_id: "",
       size_id: "",
+      chi_tiet: "",
       do_tuoi_id: "",
       so_luong: "",
     };
@@ -129,6 +134,14 @@ export function FormDialog({
       isValid = false;
     } else if (formData.ten.length < 3) {
       newErrors.ten = "Tên váy cưới phải có ít nhất 3 ký tự";
+      isValid = false;
+    }
+    // Validate chi tiết
+    if (!formData.chi_tiet.trim()) {
+      newErrors.chi_tiet = "Vui lòng nhập chi tiết váy cưới";
+      isValid = false;
+    } else if (formData.chi_tiet.length < 10) {
+      newErrors.chi_tiet = "Chi tiết váy cưới phải có ít nhất 10 ký tự";
       isValid = false;
     }
 
@@ -195,6 +208,7 @@ export function FormDialog({
           mau_id: data.mau_id,
           size_id: data.size_id,
           do_tuoi_id: data.do_tuoi_id,
+          chi_tiet: data.chi_tiet,
           so_luong: data.instances?.length || 1,
         });
 
@@ -214,6 +228,7 @@ export function FormDialog({
           anh: "",
           mau_id: 0,
           size_id: 0,
+          chi_tiet: "",
           do_tuoi_id: 0,
           so_luong: 1,
         });
@@ -400,6 +415,23 @@ export function FormDialog({
                   <p className="text-sm text-red-500 mt-1">
                     {errors.do_tuoi_id}
                   </p>
+                )}
+              </div>
+              <div className="space-y-2 col-span-2">
+                <Label htmlFor="chiTiet">Chi Tiết</Label>
+                <Textarea
+                  id="chiTiet"
+                  value={formData.chi_tiet}
+                  onChange={(e) => {
+                    setFormData({ ...formData, chi_tiet: e.target.value });
+                    setErrors({ ...errors, chi_tiet: "" });
+                  }}
+                  className={errors.chi_tiet ? "border-red-500" : ""}
+                  placeholder="Nhập chi tiết váy cưới..."
+                  rows={5}
+                />
+                {errors.chi_tiet && (
+                  <p className="text-sm text-red-500">{errors.chi_tiet}</p>
                 )}
               </div>
             </div>

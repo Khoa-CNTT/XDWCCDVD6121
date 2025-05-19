@@ -64,27 +64,29 @@ export async function PUT(
           mau_id: body.mau_id,
           do_tuoi_id: body.do_tuoi_id,
           size_id: body.size_id,
+          chi_tiet: body.chi_tiet,
         },
         include: {
           instances: true,
         },
-      });      if (diff > 0) {
+      });
+      if (diff > 0) {
         // Lấy số lớn nhất hiện tại trong tên váy để tiếp tục đánh số
         const existingInstances = await tx.vayInstance.findMany({
           where: { vay_id: vayId },
-          orderBy: { id: 'desc' }
+          orderBy: { id: "desc" },
         });
-        
+
         // Tìm số lớn nhất trong tên váy hiện tại
         let maxNumber = 0;
-        existingInstances.forEach(instance => {
+        existingInstances.forEach((instance) => {
           const match = instance.ten.match(/Váy số: (\d+)/);
           if (match && match[1]) {
             const num = parseInt(match[1]);
             if (num > maxNumber) maxNumber = num;
           }
         });
-        
+
         // Tạo mảng các váy mới với số tăng dần và status là một enum hợp lệ
         const newInstances = [];
         for (let i = 0; i < diff; i++) {
@@ -94,11 +96,12 @@ export async function PUT(
             status: "AVAILABLE" as const, // Chỉ định kiểu cụ thể để TypeScript hiểu đây là giá trị cố định
           });
         }
-        
+
         // Thêm instances mới
         await tx.vayInstance.createMany({
           data: newInstances,
-        });      } else if (diff < 0) {
+        });
+      } else if (diff < 0) {
         // Lấy các instance có thể xóa (những instance không đang được thuê)
         // Sắp xếp theo ID giảm dần để xóa từ mới nhất (ID cao nhất) trước
         const deletableInstances = await tx.vayInstance.findMany({
@@ -107,7 +110,7 @@ export async function PUT(
             status: "AVAILABLE",
           },
           orderBy: {
-            id: 'desc', // Sắp xếp giảm dần theo ID
+            id: "desc", // Sắp xếp giảm dần theo ID
           },
           take: Math.abs(diff),
           select: { id: true },

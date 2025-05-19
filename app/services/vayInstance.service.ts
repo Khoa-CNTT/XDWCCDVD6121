@@ -160,7 +160,7 @@ export class VayInstanceService {
         rental_end: null,
       },
     });
-    console.log(`Released ${expiredInstances.length} expired reservations.`);
+    // console.log(`Released ${expiredInstances.length} expired reservations.`);
     return expiredInstances.length;
   }
 

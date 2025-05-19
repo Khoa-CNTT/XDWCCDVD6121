@@ -2,6 +2,7 @@
 
 import React from "react";
 import { XMarkIcon } from "@heroicons/react/24/outline";
+import { ChevronDownIcon, ChevronUpIcon } from "@heroicons/react/24/solid";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import "@/components/css/datepicker.css";
@@ -33,6 +34,7 @@ const MakeupRentalModal: React.FC<MakeupRentalModalProps> = ({
   const [appointmentDate, setAppointmentDate] = React.useState<Date | null>(
     null
   );
+  const [isDetailsExpanded, setIsDetailsExpanded] = React.useState(false);
   const handleSubmit = () => {
     if (!appointmentDate) return;
 
@@ -50,8 +52,17 @@ const MakeupRentalModal: React.FC<MakeupRentalModalProps> = ({
   React.useEffect(() => {
     if (!isOpen) {
       setAppointmentDate(null);
+      setIsDetailsExpanded(false);
     }
   }, [isOpen]);
+
+  // Function to truncate text
+  const truncateText = (text: string, maxLength: number = 100) => {
+    if (!text) return "";
+    if (text.length <= maxLength) return text;
+    return text.substring(0, maxLength) + "...";
+  };
+
   const today = new Date();
   today.setDate(today.getDate() + 1); // Set minimum date to tomorrow
   const maxDate = new Date();
@@ -151,9 +162,31 @@ const MakeupRentalModal: React.FC<MakeupRentalModalProps> = ({
                   </p>
                 )}
                 {makeupInfo.chi_tiet && (
-                  <p className="text-gray-700 dark:text-gray-300">
-                    {makeupInfo.chi_tiet}
-                  </p>
+                  <div className="text-gray-700 dark:text-gray-300">
+                    <p className="font-medium">Chi tiết:</p>
+                    <p className="mt-1">
+                      {isDetailsExpanded
+                        ? makeupInfo.chi_tiet
+                        : truncateText(makeupInfo.chi_tiet, 100)}
+                    </p>
+                    {makeupInfo.chi_tiet.length > 100 && (
+                      <button
+                        onClick={() => setIsDetailsExpanded(!isDetailsExpanded)}
+                        className="mt-1 text-pink-500 hover:text-pink-600 text-sm font-medium flex items-center"
+                      >
+                        {isDetailsExpanded ? (
+                          <>
+                            Ẩn bớt <ChevronUpIcon className="h-4 w-4 ml-1" />
+                          </>
+                        ) : (
+                          <>
+                            Xem thêm{" "}
+                            <ChevronDownIcon className="h-4 w-4 ml-1" />
+                          </>
+                        )}
+                      </button>
+                    )}
+                  </div>
                 )}
               </div>
             </div>

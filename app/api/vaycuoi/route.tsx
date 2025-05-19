@@ -43,6 +43,7 @@ export async function POST(request: NextRequest) {
           mau_id: data.mau_id,
           do_tuoi_id: data.do_tuoi_id,
           size_id: data.size_id,
+          chi_tiet: data.chi_tiet,
         },
       });
       let stt = 0;

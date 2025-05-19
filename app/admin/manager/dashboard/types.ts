@@ -30,6 +30,11 @@ export interface RecentOrder {
   created_at: string;
 }
 
+export interface TopServiceFilter {
+  timePeriod: "month" | "quarter" | "year" | "all";
+  limit: number;
+}
+
 export interface TopServiceStats {
   topDresses: Array<{
     id: number;

@@ -1,7 +1,8 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { XMarkIcon } from "@heroicons/react/24/outline";
+import { ChevronDownIcon, ChevronUpIcon } from "@heroicons/react/24/solid";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import "@/components/css/datepicker.css";
@@ -16,6 +17,7 @@ interface VayInfo {
   size?: string;
   mau?: string;
   doTuoi?: number;
+  chiTiet?: string;
 }
 
 interface VayRentalModalProps {
@@ -33,6 +35,8 @@ const VayRentalModal: React.FC<VayRentalModalProps> = ({
 }) => {
   const [startDate, setStartDate] = React.useState<Date | null>(null);
   const [endDate, setEndDate] = React.useState<Date | null>(null);
+  const [isDetailsExpanded, setIsDetailsExpanded] = React.useState(false);
+
   // Validation functions
   const isValidDateRange = (start: Date | null, end: Date | null) => {
     if (!start || !end) return false;
@@ -92,18 +96,26 @@ const VayRentalModal: React.FC<VayRentalModalProps> = ({
     onSubmit(startDate, endDate);
     onClose();
   };
-
   // Reset dates when modal is closed
   React.useEffect(() => {
     if (!isOpen) {
       setStartDate(null);
       setEndDate(null);
+      setIsDetailsExpanded(false);
     }
   }, [isOpen]);
+
   const today = new Date();
   today.setDate(today.getDate() + 1); // Set minimum date to tomorrow
   const maxDate = new Date();
   maxDate.setMonth(maxDate.getMonth() + 3); // Allow booking up to 3 months in advance
+
+  // Function to truncate text
+  const truncateText = (text: string, maxLength: number = 100) => {
+    if (!text) return "";
+    if (text.length <= maxLength) return text;
+    return text.substring(0, maxLength) + "...";
+  };
 
   if (!isOpen) return null;
 
@@ -167,11 +179,38 @@ const VayRentalModal: React.FC<VayRentalModalProps> = ({
                   <p className="text-gray-700 dark:text-gray-300">
                     Màu: {vayInfo.mau}
                   </p>
-                )}
+                )}{" "}
                 {vayInfo.doTuoi && (
                   <p className="text-gray-700 dark:text-gray-300">
                     Độ tuổi: {vayInfo.doTuoi}
                   </p>
+                )}
+                {vayInfo.chiTiet && (
+                  <div className="text-gray-700 dark:text-gray-300">
+                    <p className="font-medium">Chi tiết:</p>
+                    <p className="mt-1">
+                      {isDetailsExpanded
+                        ? vayInfo.chiTiet
+                        : truncateText(vayInfo.chiTiet, 100)}
+                    </p>
+                    {vayInfo.chiTiet.length > 100 && (
+                      <button
+                        onClick={() => setIsDetailsExpanded(!isDetailsExpanded)}
+                        className="mt-1 text-pink-500 hover:text-pink-600 text-sm font-medium flex items-center"
+                      >
+                        {isDetailsExpanded ? (
+                          <>
+                            Ẩn bớt <ChevronUpIcon className="h-4 w-4 ml-1" />
+                          </>
+                        ) : (
+                          <>
+                            Xem thêm{" "}
+                            <ChevronDownIcon className="h-4 w-4 ml-1" />
+                          </>
+                        )}
+                      </button>
+                    )}
+                  </div>
                 )}
                 {/* Total price calculation */}
                 {startDate && endDate && (
